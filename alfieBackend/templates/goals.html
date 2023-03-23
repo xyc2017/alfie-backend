@@ -1,0 +1,22 @@
+{% extends "base.html" %} {% block title %}Goals{% endblock %} 
+{% block content %}
+<h1>Goals</h1>
+<ul id="goals">
+    {%for goal in user.goals%}
+    <li>{{goal.data}}
+        <button type="button" onClick="deleteGoal({{goal.id}})"></button>
+    </li>
+    {%endfor%}
+</ul>
+<form method="POST">
+    <label for="goal">Goal</label>
+    <input type="text" id="goal" name="goal" />
+    <br />
+    <label for="dueDate">Due Date</label>
+    <input type="date" id="dueDate" name="dueDate"
+    <br />
+    <label for="completed">Completed?</label>
+    <input type="checkbox" id="completed" name="completed"/>
+    <button type="submit">Add New Goal</button>
+</form>
+{%endblock%}

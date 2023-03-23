@@ -1,0 +1,22 @@
+{% extends "base.html" %} {% block title %}Expenses{% endblock %} 
+{% block content %}
+<h1>Expenses</h1>
+<ul id="expenses">
+    {%for expense in user.expenses%}
+    <li>{{expense.data}}
+        <button type="button" class="close" onClick="deteleExpense({{expense.id}})"></button>
+    </li>
+    {%endfor%}
+</ul>
+    <form method="POST">
+        <label for="dateOccured">Date Occurred</label>
+        <input type="date" id="dateOccured" name="dateOccured" />
+        <br />
+        <label for="itemName">Item Name</label>
+        <input type="text" id="itemName" name="itemName" />
+        <br />
+        <label for="price"></label>
+        <input type="text" id="price" name="price" />
+        <button type="submit">Add Expense</button>
+    </form>
+{% endblock%}
