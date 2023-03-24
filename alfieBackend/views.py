@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, jsonify
+from flask import Blueprint, render_template, request, flash, jsonify, abort
 from flask_login import login_required, current_user
 from .models import Expenses, Goals
 from . import db
@@ -95,8 +95,6 @@ def delete_expense():
             db.session.commit()
     return jsonify({})
 
-
-
 @views.route('/delete-goal', methods=['POST'])
 def delete_goal():
     goal=json.loads(request.data)
@@ -107,3 +105,37 @@ def delete_goal():
             db.session.delete(goal)
             db.session.commit()
     return jsonify({})
+
+@views.route('/goals/<int:goal_id>', methods=['PUT'])
+@login_required
+def update_goal(goal_id):
+    goal = Goals.query.get_or_404(goal_id)
+    if goal.user_id != current_user.id:
+        abort(403)
+    goal.goal = request.json.get('goal', goal.goal)
+    goal.dueDate = request.json.get('dueDate', goal.dueDate)
+    goal.completed = request.json.get('completed', goal.completed)
+    db.session.commit()
+    return jsonify({
+        'id': goal.id,
+        'goal': goal.goal,
+        'dueDate': goal.dueDate,
+        'completed': goal.completed,
+        'user_id': goal.user_id
+    })
+@views.route('/expenses/<int:expense_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_expense(expense_id):
+    expense = Expenses.query.get_or_404(expense_id)
+
+    if request.method == 'POST':
+        expense.dateOcurred = request.form.get('dateOcurred')
+        expense.itemName = request.form.get('itemName')
+        expense.price = request.form.get('price')
+        db.session.commit()
+        return jsonify({
+            'dateOcurred': expense.dateOcurred,
+            'itemName': expense.itemName,
+            'price': expense.price,
+            'user_id': expense.user_id
+        })
