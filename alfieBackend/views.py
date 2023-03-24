@@ -8,19 +8,56 @@ views=Blueprint('views', __name__)
 
 @views.route('/')
 def home():
-    return render_template('home.html', user=current_user)
+    user_expenses = []
+    for expense in current_user.expenses:
+        expense_data = {
+            'dateOcurred': expense.dateOcurred,
+            'itemName': expense.itemName,
+            'price': expense.price
+        }
+        user_expenses.append(expense_data)
+        
+    user_goals = []
+    for goal in current_user.goals:
+        goal_data = {
+            'name': goal.name,
+            'description': goal.description,
+            'deadline': goal.deadline
+        }
+        user_goals.append(goal_data)
+    
+    return jsonify({'expenses': user_expenses, 'goals': user_goals})
+    # return render_template('home.html', user=current_user)
 
 @views.route('/expenses', methods=['GET', 'POST'])
 @login_required
 def expense():
-    if request.method=='POST':
-        dateOcurred=request.form.get('dateOcurred')
-        itemName=request.form.get('itemName')
-        price=request.form.get('price')
-        new_expense=Expenses(dateOcurred=dateOcurred, itemName=itemName, price=price, user_id=current_user.id)
+    if request.method == 'POST':
+        date_occurred = request.form.get('dateOcurred')
+        item_name = request.form.get('itemName')
+        price = request.form.get('price')
+        new_expense = Expenses(dateOcurred=date_occurred, itemName=item_name, price=price, user_id=current_user.id)
         db.session.add(new_expense)
         db.session.commit()
-    return render_template("expenses.html", user=current_user)
+        return jsonify({'message': 'Expense added successfully!'})
+    
+    # handle GET request
+    return jsonify({'message': 'This is the expense page.'})
+
+@views.route('/goals', methods=['GET', 'POST'])
+@login_required
+def goal():
+    if request.method=='POST':
+        goal=request.form.get('goal')
+        due_date=request.form.get('dueDate')
+        completed=request.form.get('completed')
+        new_goal=Goals(goal=goal, dueDate=due_date, completed=completed, user_id=current_user.id)
+        db.session.add(new_goal)
+        db.session.commit()
+        return jsonify({'message': 'Goal added successfully!'})
+    
+    #handle GET request
+    return jsonify({'message': 'This is the goal page.'})
 
 @views.route('/delete-expense', methods=['POST'])
 def delete_expense():
@@ -33,17 +70,7 @@ def delete_expense():
             db.session.commit()
     return jsonify({})
 
-@views.route('/goals', method=['GET', 'POST'])
-@login_required
-def goal():
-    if request.method=='POST':
-        goal=request.form.get('goal')
-        dueDate=request.form.get('dueDate')
-        completed=request.form.get('completed')
-        new_goal=Goals(goal=goal, dueDate=dueDate, completed=completed, user_id=current_user.id)
-        db.session.add(new_goal)
-        db.session.commit()
-    return render_template("goals.html", user=current_user)
+
 
 @views.route('/delete-goal', methods=['POST'])
 def delete_goal():
