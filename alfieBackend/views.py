@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, flash, jsonify, abort
 from flask_login import login_required, current_user
 from .models import Expenses, Goals
-from . import db
+from .app import db
 import json
 
 views=Blueprint('views', __name__)

@@ -1,4 +1,4 @@
-from alfieBackend import create_app
+from alfieBackend.app import create_app
 
 app=create_app()
 
