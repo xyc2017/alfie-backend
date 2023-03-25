@@ -7,6 +7,7 @@ import json
 views=Blueprint('views', __name__)
 
 @views.route('/')
+@login_required
 def home():
     user_expenses = []
     for expense in current_user.expenses:

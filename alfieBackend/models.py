@@ -26,4 +26,3 @@ class User(db.Model, UserMixin):
     first_name = db.Column(db.String(150))
     expenses=db.relationship('Expenses')
     goals=db.relationship('Goals')
-  
