@@ -28,19 +28,6 @@ def home():
         }
         user_goals.append(goal_data)
     
-    # request_json = request.get_json()
-    # prompt = request_json['prompt']
-    
-    # response = openai.Completion.create(
-    #     engine="davinci",
-    #     prompt=prompt,
-    #     max_tokens=60,
-    #     n=1,
-    #     stop=None,
-    #     temperature=0.5,
-    # )
-    
-    # generated_text = response.choices[0].text.strip()
     
     return jsonify({'expenses': user_expenses, 'goals': user_goals})
 
