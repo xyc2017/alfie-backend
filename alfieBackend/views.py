@@ -1,14 +1,13 @@
 from flask import Blueprint, request, session, jsonify, abort
 from flask_login import login_required, current_user
 from .models import Expenses, Goals
-import openai
 from .app import db
 import json
 
 views=Blueprint('views', __name__)
 
 
-@views.route('/', methods=['POST'])
+@views.route('/', methods=['GET','POST'])
 @login_required
 def home():
     user_expenses = []
@@ -29,21 +28,21 @@ def home():
         }
         user_goals.append(goal_data)
     
-    request_json = request.get_json()
-    prompt = request_json['prompt']
+    # request_json = request.get_json()
+    # prompt = request_json['prompt']
     
-    response = openai.Completion.create(
-        engine="davinci",
-        prompt=prompt,
-        max_tokens=60,
-        n=1,
-        stop=None,
-        temperature=0.5,
-    )
+    # response = openai.Completion.create(
+    #     engine="davinci",
+    #     prompt=prompt,
+    #     max_tokens=60,
+    #     n=1,
+    #     stop=None,
+    #     temperature=0.5,
+    # )
     
-    generated_text = response.choices[0].text.strip()
+    # generated_text = response.choices[0].text.strip()
     
-    return jsonify({'expenses': user_expenses, 'goals': user_goals, 'generated_text': generated_text})
+    return jsonify({'expenses': user_expenses, 'goals': user_goals})
 
 @views.route('/expenses', methods=['GET', 'POST'])
 @login_required
