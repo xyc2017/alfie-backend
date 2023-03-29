@@ -2,7 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from os import path
 from flask_cors import CORS
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+# from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from datetime import timedelta
 from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
@@ -13,10 +13,9 @@ def create_app():
     app = Flask(__name__)
     CORS(app)
     bcrypt=Bcrypt(app)
-    app.config['SECRET_KEY'] = 'abcdefg'
-    app.config["JWT_SECRET_KEY"] = "121212"
+    app.config["SECRET_KEY"]= 'abcdefg'
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=1)
-    jwt = JWTManager(app)
+    # jwt = JWTManager(app)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://xyc2017:v2_42Q9S_NyjeWSec4QdkuZ7WnBRR3Sa@db.bit.io:5432/xyc2017/capstone'
     db.init_app(app)
 
@@ -31,11 +30,11 @@ def create_app():
     with app.app_context():
         db.create_all()
 
-    @jwt.user_identity_loader
+    # @jwt.user_identity_loader
     def user_identity_lookup(user):
         return user.id
 
-    @jwt.user_claims_loader
+    # @jwt.user_claims_loader
     def add_claims_to_access_token(user):
         return {'email': user.email}
 

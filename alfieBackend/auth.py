@@ -1,9 +1,10 @@
-from flask import Blueprint, request, flash, redirect, url_for, session, jsonify
+from flask import Blueprint, request, flash, redirect, url_for, session, jsonify, make_response
 from .models import User
 # from werkzeug.security import generate_password_hash, check_password_hash
 from .app import db
 from flask_login import login_user, login_required, logout_user, current_user
-from flask_jwt_extended import create_access_token, jwt_required, unset_jwt_cookies
+import jwt
+from flask_bcrypt import Bcrypt
 
 auth=Blueprint('auth', __name__)
 
@@ -17,20 +18,24 @@ def login():
     user = User.query.filter_by(email=email).first()
 
     # Check if the password is correct
-    # if user and check_password_hash(user.password, password):
-    #     # Create the access token with additional claims
-    #     access_token = create_access_token(identity=user.id, additional_claims={'email': user.email})
+    if user:
+        # and check_password_hash(user.password, password)
+        # Create the access token with additional claims
+        access_token = jwt.encode({"identity":user.id}, "secret", algorithm="HS256")
 
-    #     # Return the access token
-    #     return jsonify({'access_token': access_token}), 200
+        # Return the access token
+        return jsonify({'access_token': access_token}), 200
 
     # Return a 401 Unauthorized if the credentials are invalid
     return jsonify({'msg': 'Invalid email or password'}), 401
 
 @auth.route('/logout')
-@jwt_required
+# @jwt_required
+# .eJwlzjsOwjAMANC7ZGZwYieOe5nK8UewtnRC3J1K7G94n7LnEeezbO_jikfZX162UsMyE1UHeNfGVMHBxDXJvSl1tCacigk8HOrUNkNkgrIbrKFhyLFcCaqLQWch8rqaM8Kcdjtxc121QUh2w04zZSJVX5hc7sh1xvHftPL9ATgiMEg.ZCN1SA.Qe27fqouyaSvSyO6NZASvT-h-HE
 def logout():
-    unset_jwt_cookies()
+    # unset_jwt_cookies()
+    response=make_response("Cookie Removed")
+    response.set_cookie("session", "", max_age=0)
     return jsonify({'status': 'success', 'message': 'Logged out successfully!'}), 200
 
 @auth.route('/signup', methods=['POST'])
@@ -58,9 +63,10 @@ def signup():
         return jsonify({"error": "password must be greater than 6 characters"}), 400
     
     else:
-        new_user = User(email=email, first_name=first_name, password=bcrpyt.generate_password_hash(
-            password1))
+        new_user = User(email=email, first_name=first_name, password=password1)
+            #             bcrpyt.generate_password_hash(
+            # password1))
         db.session.add(new_user)
         db.session.commit()
-        access_token = create_access_token(identity=new_user.id)
+        access_token = jwt.encode({"identity":new_user.id}, "secret", algorithm="HS256")
         return jsonify({"access_token": access_token}), 200
