@@ -33,7 +33,7 @@ def home():
 
 @views.route('/expenses', methods=['GET', 'POST'])
 @login_required
-def expense():
+def expenses():
     user_expenses = []
     for expense in current_user.expenses:
         expense_data = {
@@ -59,7 +59,7 @@ def expense():
 
 @views.route('/goals', methods=['GET', 'POST'])
 @login_required
-def goal():
+def goals():
     user_goals = []
     for goal in current_user.goals:
         goal_data = {
@@ -108,9 +108,27 @@ def delete_goal():
             db.session.commit()
     return jsonify({})
 
-@views.route('/goals/<int:goal_id>', methods=['PUT'])
+@views.route('/goals/<int:goal_id>', methods=['GET'])
 @login_required
-def update_goal(goal_id):
+def goal(goal_id):
+    goal = Goals.query.get_or_404(goal_id)
+    if goal.user_id != current_user.id:
+        abort(403)
+    # goal.goal = request.json.get('goal', goal.goal)
+    # goal.dueDate = request.json.get('dueDate', goal.dueDate)
+    # goal.completed = request.json.get('completed', goal.completed)
+    # db.session.commit()
+    return jsonify({
+        'id': goal.id,
+        'goal': goal.goal,
+        'dueDate': goal.dueDate,
+        'completed': goal.completed,
+        'user_id': goal.user_id
+    })
+    
+@views.route('/goals/<int:goal_id>/edit', methods=['PUT'])
+@login_required
+def edit_goal(goal_id):
     goal = Goals.query.get_or_404(goal_id)
     if goal.user_id != current_user.id:
         abort(403)
@@ -125,12 +143,13 @@ def update_goal(goal_id):
         'completed': goal.completed,
         'user_id': goal.user_id
     })
-@views.route('/expenses/<int:expense_id>/edit', methods=['GET', 'POST'])
+    
+@views.route('/expenses/<int:expense_id>/edit', methods=['PUT'])
 @login_required
 def edit_expense(expense_id):
     expense = Expenses.query.get_or_404(expense_id)
 
-    if request.method == 'POST':
+    if request.method == 'PUT':
         expense.dateOcurred = request.form.get('dateOcurred')
         expense.itemName = request.form.get('itemName')
         expense.price = request.form.get('price')
@@ -142,3 +161,14 @@ def edit_expense(expense_id):
             'user_id': expense.user_id
         })
         
+@views.route('/expenses/<int:expense_id>', methods=['GET'])
+@login_required
+def expense(expense_id):
+    expense = Expenses.query.get_or_404(expense_id)
+
+    return jsonify({
+        'dateOcurred': expense.dateOcurred,
+        'itemName': expense.itemName,
+        'price': expense.price,
+        'user_id': expense.user_id
+    })

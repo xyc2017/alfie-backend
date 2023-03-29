@@ -1,6 +1,5 @@
 from flask import Blueprint, request, flash, redirect, url_for, session, jsonify, make_response
 from .models import User
-# from werkzeug.security import generate_password_hash, check_password_hash
 from .app import db
 from flask_login import login_user, login_required, logout_user, current_user
 import jwt
