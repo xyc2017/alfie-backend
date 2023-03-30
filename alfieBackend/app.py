@@ -7,6 +7,8 @@ from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
 import jwt
 from functools import wraps
+from dotenv import load_dotenv
+load_dotenv()
 
 db = SQLAlchemy()
 
