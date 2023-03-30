@@ -1,11 +1,15 @@
-from flask import Blueprint, request, flash, redirect, url_for, session, jsonify, make_response
+from flask import Blueprint, request, redirect, url_for, session, jsonify, make_response
 from .models import User
 from .app import db
-from flask_login import login_user, login_required, logout_user, current_user
+from datetime import datetime, timedelta
+# from flask_login import login_user, login_required, logout_user, current_user
 import jwt
 from flask_bcrypt import Bcrypt
+from functools import wraps
 
 auth=Blueprint('auth', __name__)
+
+# -------------------------------------------
 
 @auth.route('/login', methods=['POST'])
 def login():
@@ -15,7 +19,7 @@ def login():
 
     # Query the database for the user
     user = User.query.filter_by(email=email).first()
-
+    print(user)
     # Check if the password is correct
     if user:
         # and check_password_hash(user.password, password)

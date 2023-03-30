@@ -8,31 +8,24 @@ views=Blueprint('views', __name__)
 
 
 @views.route('/', methods=['GET','POST'])
-@login_required
+# @login_required
 def home():
-    user_expenses = []
-    for expense in current_user.expenses:
-        expense_data = {
-            'dateOcurred': expense.dateOcurred,
+    expenses = Expenses.query.all()
+    expenses_list = []
+
+    for expense in expenses:
+        expense_dict = {
+            'id': expense.id,
+            'dateOcurred': expense.dateOcurred.strftime('%m/%d/%Y'),
             'itemName': expense.itemName,
             'price': expense.price
         }
-        user_expenses.append(expense_data)
-        
-    user_goals = []
-    for goal in current_user.goals:
-        goal_data = {
-            'name': goal.name,
-            'description': goal.description,
-            'deadline': goal.deadline
-        }
-        user_goals.append(goal_data)
-    
-    
-    return jsonify({'expenses': user_expenses, 'goals': user_goals})
+        expenses_list.append(expense_dict)
+
+    return jsonify(expenses=expenses_list, goals=[])
 
 @views.route('/expenses', methods=['GET', 'POST'])
-@login_required
+# @login_required
 def expenses():
     user_expenses = []
     for expense in current_user.expenses:
@@ -58,7 +51,7 @@ def expenses():
     return jsonify({'expenses': user_expenses})
 
 @views.route('/goals', methods=['GET', 'POST'])
-@login_required
+# @login_required
 def goals():
     user_goals = []
     for goal in current_user.goals:
@@ -109,7 +102,7 @@ def delete_goal():
     return jsonify({})
 
 @views.route('/goals/<int:goal_id>', methods=['GET'])
-@login_required
+# @login_required
 def goal(goal_id):
     goal = Goals.query.get_or_404(goal_id)
     if goal.user_id != current_user.id:
@@ -127,7 +120,7 @@ def goal(goal_id):
     })
     
 @views.route('/goals/<int:goal_id>/edit', methods=['PUT'])
-@login_required
+# @login_required
 def edit_goal(goal_id):
     goal = Goals.query.get_or_404(goal_id)
     if goal.user_id != current_user.id:
@@ -145,7 +138,7 @@ def edit_goal(goal_id):
     })
     
 @views.route('/expenses/<int:expense_id>/edit', methods=['PUT'])
-@login_required
+# @login_required
 def edit_expense(expense_id):
     expense = Expenses.query.get_or_404(expense_id)
 
@@ -162,7 +155,7 @@ def edit_expense(expense_id):
         })
         
 @views.route('/expenses/<int:expense_id>', methods=['GET'])
-@login_required
+# @login_required
 def expense(expense_id):
     expense = Expenses.query.get_or_404(expense_id)
 

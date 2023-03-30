@@ -1,10 +1,12 @@
-from flask import Flask
+from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from os import path
 from flask_cors import CORS
 from datetime import timedelta
 from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
+import jwt
+from functools import wraps
 
 db = SQLAlchemy()
 
@@ -17,6 +19,9 @@ def create_app():
     # jwt = JWTManager(app)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://xyc2017:v2_42Q9S_NyjeWSec4QdkuZ7WnBRR3Sa@db.bit.io:5432/xyc2017/capstone'
     db.init_app(app)
+    
+    # -----------------------------------------
+    
 
     from .views import views
     from .auth import auth
