@@ -84,21 +84,24 @@ def expenses():
     #         'price': expense.price
     #     }
     #     user_expenses.append(expense_data)
-    if request.method == 'POST':
-        date_occurred = request.form.get('dateOcurred')
-        item_name = request.form.get('itemName')
-        price = float(request.form.get('price'))
-        new_expense = Expenses(dateOcurred=date_occurred, itemName=item_name, price=price)
-        db.session.add(new_expense)
-        db.session.commit()
-        return jsonify({
-            'dateOcurred': new_expense.dateOcurred,
-            'itemName': new_expense.itemName,
-            'price': new_expense.price,
-            'id': new_expense.id
-            }), 201
 
     return jsonify({'expenses': expenses_list})
+
+@views.route('/expenses/new', methods=["POST"])
+def create_expense():
+    date_ocurred = request.form.get('dateOcurred')
+    item_name = request.form.get('itemName')
+    price = float(request.form.get('price'))
+    new_expense = Expenses(dateOcurred=date_ocurred, itemName=item_name, price=price)
+    db.session.add(new_expense)
+    db.session.commit()
+    return jsonify({
+        'dateOcurred': new_expense.dateOcurred,
+        'itemName': new_expense.itemName,
+        'price': new_expense.price,
+        'id': new_expense.id
+        }), 201
+
 
 @views.route('/goals', methods=['GET', 'POST'])
 # @login_required
@@ -122,10 +125,15 @@ def goals():
     #         'deadline': goal.deadline
     #     }
     #     user_goals.append(goal_data)
+    
+    return jsonify({'goals': goals_list})
+
+@views.route('/goals/new', methods=['POST'])
+def create_goals():
     if request.method == 'POST':
-        goal = request.form.get('goal')
-        due_date = request.form.get('dueDate')
-        completed = request.form.get('completed')
+        goal = request.json.get('goal')
+        due_date = request.json.get('dueDate')
+        completed = request.json.get('completed')
         new_goal = Goals(goal=goal, dueDate=due_date, completed=completed)
         db.session.add(new_goal)
         db.session.commit()
@@ -134,26 +142,21 @@ def goals():
             'goal': new_goal.goal,
             'dueDate': new_goal.dueDate,
             'completed': new_goal.completed,
-        })
+        }), 201
     
-    return jsonify({'goals': goals_list})
-
-
-@views.route('/delete-expense', methods=['DELETE'])
-def delete_expense():
-    expense_data = json.loads(request.data)
-    expense_id = expense_data['expenseId']
-    expense = Expenses.query.get(expense_id)
+@views.route('/expenses/<int:id>', methods=['DELETE'])
+def delete_expense(id):
+    expense = Expenses.query.get_or_404(id)
     db.session.delete(expense)
     db.session.commit()
     return jsonify({'message': 'Expense deleted successfully'})
     
 
-@views.route('/delete-goal', methods=['DELETE'])
-def delete_goal():
-    goal=json.loads(request.data)
-    goalId=goal['goalId']
-    goal=Goals.query.get(goalId)
+@views.route('/goals/<int:id>/', methods=['DELETE'])
+def delete_goal(id):
+    goal = Goals.query.get(id)
+    if not goal:
+        return jsonify({'error': 'Goal not found'}), 404
     db.session.delete(goal)
     db.session.commit()
     return jsonify({'message': 'Goal deleted successfully'})
@@ -179,36 +182,41 @@ def goal(goal_id):
 @views.route('/goals/<int:goal_id>/edit', methods=['PUT'])
 # @login_required
 def edit_goal(goal_id):
-    goal = Goals.query.get_or_404(goal_id)
+    foundGoal = Goals.query.get_or_404(goal_id)
     # if goal.user_id != current_user.id:
     #     abort(403)
-    goal.goal = request.json.get('goal', goal.goal)
-    goal.dueDate = request.json.get('dueDate', goal.dueDate)
-    goal.completed = request.json.get('completed', goal.completed)
-    db.session.commit()
-    return jsonify({
-        'id': goal.id,
-        'goal': goal.goal,
-        'dueDate': goal.dueDate,
-        'completed': goal.completed,
-        # 'user_id': goal.user_id
+    goal=request.get_json()
+    if request.method=='PUT':
+        foundGoal.goal = request.json.get('goal', goal.goal)
+        foundGoal.dueDate = request.json.get('dueDate', goal.dueDate)
+        foundGoal.completed = request.json.get('completed', goal.completed)
+        db.session.commit()
+        return jsonify({
+            'id': foundGoal.id,
+            'goal': goal.goal,
+            'dueDate': goal.dueDate,
+            'completed': goal.completed,
+            # 'user_id': goal.user_id
     })
     
 @views.route('/expenses/<int:expense_id>/edit', methods=['PUT'])
 # @login_required
 def edit_expense(expense_id):
-    expense = Expenses.query.get_or_404(expense_id)
-
+    foundExpense = Expenses.query.get_or_404(expense_id)
+    print(expense_id)
+    print(request.get_json())
+    expense=request.get_json()
+    print(expense.get('dateOcurred'))
     if request.method == 'PUT':
-        expense.dateOcurred = request.form.get('dateOcurred')
-        expense.itemName = request.form.get('itemName')
-        expense.price = request.form.get('price')
+        foundExpense.dateOcurred = expense.get('dateOcurred')
+        foundExpense.itemName = expense.get('itemName')
+        foundExpense.price = expense.get('price')
         db.session.commit()
         return jsonify({
-            'id': expense.id,
-            'dateOcurred': expense.dateOcurred,
-            'itemName': expense.itemName,
-            'price': expense.price,
+            'id': foundExpense.id,
+            'dateOcurred': expense.get('dateOcurred'),
+            'itemName': expense.get('itemName'),
+            'price': expense.get('price'),
             # 'user_id': expense.user_id
         })
         
@@ -218,6 +226,7 @@ def expense(expense_id):
     expense = Expenses.query.get_or_404(expense_id)
 
     return jsonify({
+        'id': expense.id,
         'dateOcurred': expense.dateOcurred,
         'itemName': expense.itemName,
         'price': expense.price,
