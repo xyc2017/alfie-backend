@@ -15,7 +15,7 @@ def create_app():
     app = Flask(__name__)
     CORS(app, resources={r"/*": {"origins": "*"}})
     bcrypt=Bcrypt(app)
-    app.config["SECRET_KEY"]= "SECRET_KEY"
+    app.config["SECRET_KEY"]= "abcdefg"
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=1)
     # jwt = JWTManager(app)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://xyc2017:v2_42Q9S_NyjeWSec4QdkuZ7WnBRR3Sa@db.bit.io:5432/xyc2017/capstone'
