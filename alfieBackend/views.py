@@ -1,11 +1,9 @@
 from flask import Blueprint, request, session, jsonify, redirect
-from flask_login import login_required, current_user
 from .models import Expenses, Goals
 from .app import db
-import json
 import os
 import openai
-import requests
+
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
@@ -13,7 +11,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 views=Blueprint('views', __name__)
 
 
-@views.route('/', methods=['GET','POST'])
+@views.route('/', methods=['GET'])
 # @login_required
 def home():
     expenses = Expenses.query.all()
@@ -39,6 +37,14 @@ def home():
             'completed': goal.completed
         }
         goals_list.append(goal_dict)
+        
+    # data = request.json   
+    # response = openai.Completion.create(
+    #     engine="davinci",
+    #     prompt=data["message"],
+    #     max_tokens=60
+    # )
+
     
     # input_text = request.json['input']
 
@@ -232,3 +238,13 @@ def expense(expense_id):
         'price': expense.price,
         # 'user_id': expense.user_id
     })
+    
+@views.route("/chat", methods=["POST"])
+def chat():
+    data = request.json
+    response = openai.Completion.create(
+        engine="davinci",
+        prompt=data["message"],
+        max_tokens=60
+    )
+    return jsonify(response.choices[0].text)
