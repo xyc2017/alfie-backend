@@ -1,4 +1,5 @@
 from alfieBackend.app import create_app
+from flask import jsonify
 
 app=create_app()
 
