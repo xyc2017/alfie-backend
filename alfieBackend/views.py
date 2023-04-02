@@ -102,7 +102,7 @@ def create_expense():
     db.session.add(new_expense)
     db.session.commit()
     return jsonify({
-        'dateOcurred': new_expense.dateOcurred,
+        'dateOcurred': new_expense.dateOcurred.strftime('%m/%d/%Y'),
         'itemName': new_expense.itemName,
         'price': new_expense.price,
         'id': new_expense.id
