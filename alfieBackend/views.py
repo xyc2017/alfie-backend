@@ -95,9 +95,9 @@ def expenses():
 
 @views.route('/expenses/new', methods=["POST"])
 def create_expense():
-    date_ocurred = request.form.get('dateOcurred')
-    item_name = request.form.get('itemName')
-    price = float(request.form.get('price'))
+    date_ocurred = request.json.get('dateOcurred')
+    item_name = request.json.get('itemName')
+    price = float(request.json.get('price'))
     new_expense = Expenses(dateOcurred=date_ocurred, itemName=item_name, price=price)
     db.session.add(new_expense)
     db.session.commit()
